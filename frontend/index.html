@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Recruitment Copilot</title>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --green: #16a34a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header .logo {
+    background: var(--primary);
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold;
+  }
+  header h1 { font-size: 16px; margin: 0; }
+  header .badge {
+    margin-left: auto;
+    background: #eef2ff;
+    color: var(--primary);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  main {
+    max-width: 1100px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+  h2 { margin: 0 0 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 20px; }
+  .grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 20px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+ .card h3 {
+    margin: 0 0 16px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 36px 20px;
+    text-align: center;
+    color: var(--muted);
+    cursor: pointer;
+    transition: 0.15s;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .drop-zone .upload-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .drop-zone small {
+    color: #9ca3af;
+    font-size: 12px;
+  }
+  .drop-zone:hover { border-color: var(--primary); background: #f8f8ff; }
+  .btn {
+    display: block;
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  
+  .btn:hover { background: #4338ca; }
+  
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .stats { display: flex; gap: 24px; margin-top: 12px; }
+  .stat .num { font-size: 22px; font-weight: 700; }
+  .stat .label { font-size: 12px; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+  .status { color: var(--green); font-weight: 600; }
+  .skill-tag {
+    display: inline-block;
+    background: #eef2ff;
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    margin: 2px;
+  }
+  #uploadResult { margin-top: 14px; font-size: 14px; }
+  .field { margin-bottom: 6px; font-size: 13px; }
+  .field b { color: var(--muted); font-weight: 600; }
+  input[type="file"] { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">RC</div>
+  <h1>Recruitment Copilot</h1>
+  <div class="badge">Milestone 1</div>
+</header>
+
+<main>
+  <h2>Resume Parsing &amp; Candidate Profiling</h2>
+  <p class="subtitle">Upload and process resumes to create structured candidate profiles</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Upload Resume</h3>
+      <label class="drop-zone" for="fileInput">
+        <div class="upload-icon">⬆️</div>
+        <div>Drag and drop resumes or click to browse</div>
+        <small>Supported formats: PDF, DOCX</small>
+      </label>
+      <input type="file" id="fileInput" accept=".pdf,.docx" />
+      <button class="btn" id="uploadBtn">Upload File</button>
+      <div id="uploadResult"></div>
+    </div>
+
+    <div class="card">
+      <h3>Parsing Progress</h3>
+      <div class="stats">
+        <div class="stat"><div class="num" id="statProcessed">0</div><div class="label">Resumes Processed</div></div>
+        <div class="stat"><div class="num" id="statAccuracy">0%</div><div class="label">Extraction Accuracy</div></div>
+        <div class="stat"><div class="num" id="statProfiles">0</div><div class="label">Profiles Created</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3>Recently Processed Candidates</h3>
+    <table id="candidateTable">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Experience</th><th>Skills</th><th>Status</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById('uploadBtn');
+const uploadResult = document.getElementById('uploadResult');
+
+async function refreshStats() {
+  const res = await fetch('/api/candidates/stats/summary');
+  const data = await res.json();
+  document.getElementById('statProcessed').innerText = data.resumes_processed;
+  document.getElementById('statAccuracy').innerText = data.extraction_accuracy + '%';
+  document.getElementById('statProfiles').innerText = data.profiles_created;
+}
+
+async function refreshCandidates() {
+  const res = await fetch('/api/candidates/');
+  const candidates = await res.json();
+  const tbody = document.querySelector('#candidateTable tbody');
+  tbody.innerHTML = '';
+  candidates.forEach(c => {
+    const skills = (c.skills || '').split(',').filter(Boolean).slice(0, 4)
+      .map(s => `<span class="skill-tag">${s.trim()}</span>`).join(' ');
+    const row = `<tr>
+      <td>${c.name || '—'}</td>
+      <td>${c.email || '—'}</td>
+      <td>${c.experience_years || '—'}</td>
+      <td>${skills || '—'}</td>
+      <td class="status">${c.status}</td>
+    </tr>`;
+    tbody.innerHTML += row;
+  });
+}
+
+uploadBtn.addEventListener('click', async () => {
+  if (!fileInput.files.length) {
+    uploadResult.innerHTML = '<span style="color:red">Please select a PDF or DOCX file first.</span>';
+    return;
+  }
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
+
+  uploadBtn.disabled = true;
+  uploadResult.innerHTML = 'Processing resume...';
+
+  try {
+    const res = await fetch('/api/upload/', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Upload failed');
+
+    const p = data.extracted_profile;
+    uploadResult.innerHTML = `
+      <div class="field"><b>Name:</b> ${p.name || '—'}</div>
+      <div class="field"><b>Email:</b> ${p.email || '—'}</div>
+      <div class="field"><b>Phone:</b> ${p.phone || '—'}</div>
+      <div class="field"><b>Location:</b> ${p.location || '—'}</div>
+      <div class="field"><b>Education:</b> ${p.education || '—'}</div>
+      <div class="field"><b>Experience:</b> ${p.experience_years || '—'}</div>
+      <div class="field"><b>Skills:</b> ${p.skills || '—'}</div>
+    `;
+    await refreshStats();
+    await refreshCandidates();
+  } catch (err) {
+    uploadResult.innerHTML = `<span style="color:red">${err.message}</span>`;
+  } finally {
+    uploadBtn.disabled = false;
+  }
+});
+
+refreshStats();
+refreshCandidates();
+</script>
+
+</body>
+</html>
