@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Recruitment Copilot - Matching & Skill Analysis</title>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --green: #16a34a;
+    --amber: #d97706;
+    --red: #dc2626;
+    --sidebar-w: 220px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+  }
+  .sidebar .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 20px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar .brand .logo {
+    background: var(--primary);
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .sidebar .brand span { font-weight: 700; font-size: 14px; line-height: 1.2; }
+  .sidebar nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .sidebar nav a:hover { background: #f3f4f6; color: var(--text); }
+  .sidebar nav a.active { background: #eef2ff; color: var(--primary); font-weight: 600; }
+  .sidebar nav a .dot { width: 16px; text-align: center; }
+  .main-area { flex: 1; min-width: 0; }
+  .topbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .topbar h1 { margin: 0 0 4px; font-size: 20px; }
+  .topbar .subtitle { color: var(--muted); font-size: 13px; margin: 0; }
+  .badge {
+    background: #eef2ff;
+    color: var(--primary);
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  main {
+    padding: 24px 28px;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 2px; font-size: 15px; }
+  .card .card-sub { color: var(--muted); font-size: 12.5px; margin: 0 0 16px; }
+  .controls-row { display: flex; gap: 10px; margin-bottom: 18px; }
+  select {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    background: white;
+    color: var(--text);
+  }
+  .btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { background: #4338ca; }
+  .candidate-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: 0.15s;
+  }
+  .candidate-card:hover { border-color: var(--primary); background: #fafaff; }
+  .candidate-card.selected { border-color: var(--primary); background: #f5f5ff; box-shadow: 0 0 0 1px var(--primary); }
+  .candidate-card .name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .candidate-card .skills { display: flex; gap: 5px; flex-wrap: wrap; }
+  .skill-tag {
+    display: inline-block;
+    background: #eef2ff;
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+  }
+  .score-circle {
+    flex-shrink: 0;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.1;
+    margin-left: 12px;
+  }
+  .score-circle .lbl { font-size: 8px; font-weight: 600; opacity: 0.9; text-transform: uppercase; }
+  .score-high { background: var(--green); }
+  .score-mid { background: var(--amber); }
+  .score-low { background: var(--red); }
+  .skill-row { margin-bottom: 16px; }
+  .skill-row .skill-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 13px;
+    margin-bottom: 5px;
+  }
+  .skill-row .skill-head .name { font-weight: 600; }
+  .skill-row .skill-head .status { font-size: 11px; font-weight: 700; text-transform: uppercase; }
+  .status-have { color: var(--green); }
+  .status-missing { color: var(--red); }
+  .bar-track { height: 7px; background: #f1f1f4; border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .bar-have { background: var(--green); width: 100%; }
+  .bar-missing { background: var(--red); width: 12%; }
+  .recommend-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 18px;
+  }
+  .recommend-box .rec-title { font-weight: 700; font-size: 12.5px; color: #1d4ed8; margin-bottom: 6px; }
+  .recommend-box p { margin: 0; font-size: 13px; color: #1e3a8a; line-height: 1.5; }
+  .empty-state { color: var(--muted); font-size: 13px; text-align: center; padding: 40px 10px; }
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.35);
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 12px; padding: 24px; width: 420px; max-width: 90vw; }
+  .modal h3 { margin: 0 0 16px; }
+  .modal label { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); margin: 12px 0 5px; }
+  .modal input, .modal textarea {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+  .modal .btn-cancel {
+    background: white; color: var(--muted); border: 1px solid var(--border);
+    padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">RC</div>
+      <span>Recruitment<br/>Copilot</span>
+    </div>
+    <nav>
+      <a href="/"><span class="dot">📋</span> Dashboard</a>
+      <a href="/"><span class="dot">📤</span> Resume Upload</a>
+      <a href="/"><span class="dot">👥</span> Candidates</a>
+      <a href="#" id="jobPostingsLink"><span class="dot">💼</span> Job Postings</a>
+      <a class="active" href="/match"><span class="dot">📊</span> Matching &amp; Skill Analysis</a>
+    </nav>
+  </aside>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div>
+        <h1>Matching &amp; Skill Analysis</h1>
+        <p class="subtitle">Candidate-job matching and skill-gap analysis</p>
+      </div>
+      <div class="badge">Milestone 2</div>
+    </div>
+
+    <main>
+      <div class="card">
+        <h3>Candidate Matching</h3>
+        <p class="card-sub">Select a job posting to rank candidates by match score</p>
+        <div class="controls-row">
+          <select id="jobSelect"><option value="">Loading jobs...</option></select>
+          <button class="btn" id="newJobBtn">+ New Job</button>
+        </div>
+        <div id="candidateList"></div>
+      </div>
+
+      <div class="card">
+        <h3>Skill Gap Analysis</h3>
+        <p class="card-sub" id="skillGapSub">Select a candidate on the left to see their skill breakdown</p>
+        <div id="skillGapContent">
+          <div class="empty-state">No candidate selected yet.</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="jobModalOverlay">
+  <div class="modal">
+    <h3>Create Job Posting</h3>
+    <label>Job Title</label>
+    <input type="text" id="jobTitle" placeholder="e.g. Senior Backend Developer" />
+    <label>Description</label>
+    <textarea id="jobDesc" rows="2" placeholder="Brief role description"></textarea>
+    <label>Required Skills (comma-separated)</label>
+    <input type="text" id="jobSkills" placeholder="Python, SQL, AWS, Docker" />
+    <label>Minimum Experience (years)</label>
+    <input type="number" id="jobExp" value="0" min="0" />
+    <div class="modal-actions">
+      <button class="btn-cancel" id="cancelJobBtn">Cancel</button>
+      <button class="btn" id="saveJobBtn">Create Job</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentJobId = null;
+let currentCandidates = [];
+
+function scoreClass(score) {
+  if (score >= 80) return 'score-high';
+  if (score >= 50) return 'score-mid';
+  return 'score-low';
+}
+
+async function loadJobs() {
+  const res = await fetch('/api/jobs/');
+  const jobs = await res.json();
+  const select = document.getElementById('jobSelect');
+  select.innerHTML = '';
+  if (jobs.length === 0) {
+    select.innerHTML = '<option value="">No jobs yet - create one</option>';
+    return;
+  }
+  jobs.forEach(j => {
+    const opt = document.createElement('option');
+    opt.value = j.id;
+    opt.textContent = j.title;
+    select.appendChild(opt);
+  });
+  currentJobId = jobs[0].id;
+  select.value = currentJobId;
+  await loadMatches(currentJobId);
+}
+
+async function loadMatches(jobId) {
+  const listEl = document.getElementById('candidateList');
+  listEl.innerHTML = '<div class="empty-state">Loading matches...</div>';
+  const res = await fetch(`/api/match/${jobId}`);
+  if (!res.ok) {
+    listEl.innerHTML = '<div class="empty-state">Could not load matches for this job.</div>';
+    return;
+  }
+  currentCandidates = await res.json();
+  renderCandidateList();
+  resetSkillGap();
+}
+
+function renderCandidateList() {
+  const listEl = document.getElementById('candidateList');
+  if (currentCandidates.length === 0) {
+    listEl.innerHTML = '<div class="empty-state">No candidates uploaded yet.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  currentCandidates.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'candidate-card';
+    div.dataset.candidateId = c.candidate_id;
+    const skillTags = c.matched_skills.slice(0, 4)
+      .map(s => `<span class="skill-tag">${s}</span>`).join(' ');
+    div.innerHTML = `
+      <div>
+        <div class="name">${c.name || 'Unnamed Candidate'}</div>
+        <div class="skills">${skillTags || '<span class="skill-tag">no matched skills</span>'}</div>
+      </div>
+      <div class="score-circle ${scoreClass(c.match_score)}">
+        ${Math.round(c.match_score)}%
+        <span class="lbl">match</span>
+      </div>
+    `;
+    div.addEventListener('click', () => selectCandidate(c.candidate_id, div));
+    listEl.appendChild(div);
+  });
+}
+
+function resetSkillGap() {
+  document.getElementById('skillGapSub').textContent = 'Select a candidate on the left to see their skill breakdown';
+  document.getElementById('skillGapContent').innerHTML = '<div class="empty-state">No candidate selected yet.</div>';
+}
+
+async function selectCandidate(candidateId, cardEl) {
+  document.querySelectorAll('.candidate-card').forEach(el => el.classList.remove('selected'));
+  cardEl.classList.add('selected');
+
+  const contentEl = document.getElementById('skillGapContent');
+  contentEl.innerHTML = '<div class="empty-state">Loading skill breakdown...</div>';
+
+  const res = await fetch(`/api/match/skill-gap/${candidateId}/${currentJobId}`);
+  if (!res.ok) {
+    contentEl.innerHTML = '<div class="empty-state">Could not load skill gap for this candidate.</div>';
+    return;
+  }
+  const data = await res.json();
+
+  document.getElementById('skillGapSub').textContent = `Candidate: ${data.candidate_name || 'Unnamed'} — ${data.job_title}`;
+
+  const rows = data.skill_breakdown.map(item => {
+    const has = item.candidate_has_it;
+    return `
+      <div class="skill-row">
+        <div class="skill-head">
+          <span class="name">${item.skill}</span>
+          <span class="status ${has ? 'status-have' : 'status-missing'}">${has ? 'Have it' : 'Missing'}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill ${has ? 'bar-have' : 'bar-missing'}"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  contentEl.innerHTML = `
+    ${rows}
+    <div class="recommend-box">
+      <div class="rec-title">💡 Recommendation</div>
+      <p>${data.recommendation}</p>
+    </div>
+  `;
+}
+
+document.getElementById('jobSelect').addEventListener('change', (e) => {
+  currentJobId = e.target.value;
+  if (currentJobId) loadMatches(currentJobId);
+});
+
+const overlay = document.getElementById('jobModalOverlay');
+document.getElementById('newJobBtn').addEventListener('click', () => overlay.classList.add('open'));
+document.getElementById('jobPostingsLink').addEventListener('click', (e) => { e.preventDefault(); overlay.classList.add('open'); });
+document.getElementById('cancelJobBtn').addEventListener('click', () => overlay.classList.remove('open'));
+
+document.getElementById('saveJobBtn').addEventListener('click', async () => {
+  const title = document.getElementById('jobTitle').value.trim();
+  const description = document.getElementById('jobDesc').value.trim();
+  const required_skills = document.getElementById('jobSkills').value.trim();
+  const min_experience_years = parseInt(document.getElementById('jobExp').value) || 0;
+
+  if (!title || !required_skills) {
+    alert('Please fill in at least a job title and required skills.');
+    return;
+  }
+
+  const res = await fetch('/api/jobs/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, description, required_skills, min_experience_years })
+  });
+
+  if (res.ok) {
+    overlay.classList.remove('open');
+    document.getElementById('jobTitle').value = '';
+    document.getElementById('jobDesc').value = '';
+    document.getElementById('jobSkills').value = '';
+    document.getElementById('jobExp').value = '0';
+    await loadJobs();
+  } else {
+    alert('Failed to create job. Check the console for details.');
+  }
+});
+
+loadJobs();
+</script>
+
+</body>
+</html>
