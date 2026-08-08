@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Recruitment Copilot - Interview Assistance & ATS Integration</title>
+<style>
+  :root {
+    --primary: #4f46e5;
+    --bg: #f5f6fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --green: #16a34a;
+    --amber: #d97706;
+    --sidebar-w: 220px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+  }
+  .sidebar .brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 8px 20px; margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar .brand .logo {
+    background: var(--primary); color: white;
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; font-size: 13px; flex-shrink: 0;
+  }
+  .sidebar .brand span { font-weight: 700; font-size: 14px; line-height: 1.2; }
+  .sidebar nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: 8px;
+    color: var(--muted); text-decoration: none;
+    font-size: 13px; font-weight: 500; margin-bottom: 2px;
+  }
+  .sidebar nav a:hover { background: #f3f4f6; color: var(--text); }
+  .sidebar nav a.active { background: #eef2ff; color: var(--primary); font-weight: 600; }
+  .sidebar nav a .dot { width: 16px; text-align: center; }
+  .main-area { flex: 1; min-width: 0; }
+  .topbar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 28px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+  }
+  .topbar h1 { margin: 0 0 4px; font-size: 20px; }
+  .topbar .subtitle { color: var(--muted); font-size: 13px; margin: 0; }
+  .badge {
+    background: #fef3c7; color: #b45309;
+    padding: 5px 12px; border-radius: 12px;
+    font-size: 12px; font-weight: 700; white-space: nowrap;
+  }
+  main {
+    padding: 24px 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .card h3 { margin: 0 0 2px; font-size: 15px; }
+  .card .card-sub { color: var(--muted); font-size: 12.5px; margin: 0 0 16px; }
+  .controls-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  select {
+    flex: 1; padding: 9px 10px; border-radius: 8px;
+    border: 1px solid var(--border); font-size: 13px;
+    background: white; color: var(--text);
+  }
+  .btn {
+    background: var(--primary); color: white; border: none;
+    padding: 9px 14px; border-radius: 8px; font-weight: 600;
+    font-size: 13px; cursor: pointer; white-space: nowrap;
+  }
+  .btn:hover { background: #4338ca; }
+
+  /* Question list */
+  .q-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 10px;
+  }
+  .q-num {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    background: var(--primary); color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .q-item .q-text { font-size: 13.5px; margin-bottom: 6px; line-height: 1.4; }
+  .q-item .q-meta { font-size: 11px; color: var(--muted); }
+  .q-item .q-meta .cat { color: var(--primary); font-weight: 600; }
+
+  /* Simulation chat */
+  .sim-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .sim-header .sub { font-size: 12.5px; color: var(--muted); }
+  .live-badge {
+    background: #dcfce7; color: var(--green);
+    padding: 3px 10px; border-radius: 10px;
+    font-size: 11px; font-weight: 700;
+  }
+  .chat-window {
+    height: 320px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background: #fafafa;
+  }
+  .msg { display: flex; margin-bottom: 12px; }
+  .msg.ai { justify-content: flex-start; }
+  .msg.user { justify-content: flex-end; }
+  .msg .bubble {
+    max-width: 78%;
+    padding: 10px 13px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .msg.ai .bubble { background: white; border: 1px solid var(--border); border-bottom-left-radius: 3px; }
+  .msg.user .bubble { background: var(--primary); color: white; border-bottom-right-radius: 3px; }
+  .chat-input-row { display: flex; gap: 8px; margin-bottom: 20px; }
+  .chat-input-row input {
+    flex: 1; padding: 10px 12px;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 13px;
+  }
+
+  /* ATS section */
+  .ats-section h4 { font-size: 13px; margin: 0 0 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.02em; }
+  .ats-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .ats-row:last-child { border-bottom: none; }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--primary); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .ats-row .name { font-size: 13px; font-weight: 600; }
+  .ats-row .stage-select {
+    margin-left: auto;
+    font-size: 11.5px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .empty-state { color: var(--muted); font-size: 13px; text-align: center; padding: 24px 10px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">RC</div>
+      <span>Recruitment<br/>Copilot</span>
+    </div>
+    <nav>
+      <a href="/"><span class="dot">📋</span> Dashboard</a>
+      <a href="/"><span class="dot">📤</span> Resume Upload</a>
+      <a href="/"><span class="dot">👥</span> Candidates</a>
+      <a href="/match"><span class="dot">📊</span> Matching &amp; Skill Analysis</a>
+      <a class="active" href="/interview"><span class="dot">🎤</span> Interview Assistant</a>
+    </nav>
+  </aside>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div>
+        <h1>Interview Assistance &amp; ATS Integration</h1>
+        <p class="subtitle">Generate interview questions, simulate interviews, and manage candidates</p>
+      </div>
+      <div class="badge">Milestone 3</div>
+    </div>
+
+    <main>
+      <div class="card">
+        <h3>Interview Question Generator</h3>
+        <p class="card-sub">Role-specific questions generated from the job's required skills</p>
+        <div class="controls-row">
+          <select id="jobSelect"><option value="">Loading jobs...</option></select>
+          <select id="categorySelect">
+            <option value="">All Categories</option>
+            <option value="Technical Skills">Technical Skills</option>
+            <option value="Scenario-based">Scenario-based</option>
+            <option value="Behavioral">Behavioral</option>
+            <option value="Experience-based">Experience-based</option>
+          </select>
+        </div>
+        <div id="questionList"><div class="empty-state">Select a job to generate questions.</div></div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="sim-header">
+            <div>
+              <h3>AI Interview Simulation</h3>
+              <div class="sub" id="simCandidateLabel">Candidate: —</div>
+            </div>
+            <span class="live-badge" id="simBadge">Not Started</span>
+          </div>
+          <div class="controls-row">
+            <select id="candidateSelect"><option value="">Select candidate...</option></select>
+            <button class="btn" id="startSimBtn">Start</button>
+          </div>
+          <div class="chat-window" id="chatWindow">
+            <div class="empty-state">Select a candidate and click Start to begin the simulated interview.</div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Type your response..." disabled />
+            <button class="btn" id="sendBtn" disabled>Send</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ats-section">
+            <h4>ATS Integration <span style="color:var(--green); font-weight:700; text-transform:none;">● Connected</span></h4>
+            <div id="atsList"><div class="empty-state">No candidates tracked yet.</div></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+let jobs = [];
+let candidates = [];
+let currentJobId = null;
+let simQuestions = [];
+let simIndex = 0;
+let simCandidateId = null;
+
+async function loadJobs() {
+  const res = await fetch('/api/jobs/');
+  jobs = await res.json();
+  const select = document.getElementById('jobSelect');
+  select.innerHTML = '';
+  if (jobs.length === 0) {
+    select.innerHTML = '<option value="">No jobs yet</option>';
+    return;
+  }
+  jobs.forEach(j => {
+    const opt = document.createElement('option');
+    opt.value = j.id;
+    opt.textContent = j.title;
+    select.appendChild(opt);
+  });
+  currentJobId = jobs[0].id;
+  select.value = currentJobId;
+  await loadQuestions();
+}
+
+async function loadCandidates() {
+  const res = await fetch('/api/candidates/');
+  candidates = await res.json();
+  const select = document.getElementById('candidateSelect');
+  select.innerHTML = '<option value="">Select candidate...</option>';
+  candidates.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name || `Candidate #${c.id}`;
+    select.appendChild(opt);
+  });
+  renderAtsList();
+}
+
+async function loadQuestions() {
+  const category = document.getElementById('categorySelect').value;
+  const listEl = document.getElementById('questionList');
+  listEl.innerHTML = '<div class="empty-state">Generating questions...</div>';
+  const url = category
+    ? `/api/interview/questions/${currentJobId}?category=${encodeURIComponent(category)}`
+    : `/api/interview/questions/${currentJobId}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    listEl.innerHTML = '<div class="empty-state">Could not load questions for this job.</div>';
+    return;
+  }
+  const data = await res.json();
+  simQuestions = data.questions;
+  if (data.questions.length === 0) {
+    listEl.innerHTML = '<div class="empty-state">No questions generated.</div>';
+    return;
+  }
+  listEl.innerHTML = data.questions.map((q, i) => `
+    <div class="q-item">
+      <div class="q-num">${i + 1}</div>
+      <div>
+        <div class="q-text">${q.question}</div>
+        <div class="q-meta"><span class="cat">${q.category}</span> • ${q.suggested_response_time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAtsList() {
+  fetch('/api/ats/').then(r => r.json()).then(statuses => {
+    const listEl = document.getElementById('atsList');
+    if (statuses.length === 0) {
+      listEl.innerHTML = '<div class="empty-state">No candidates tracked yet. Start a simulation to add one.</div>';
+      return;
+    }
+    const stages = ["Applied", "Screening", "Interview In Progress", "Interview Scheduled", "Offer", "Rejected"];
+    listEl.innerHTML = statuses.map(s => {
+      const initials = (s.candidate_name || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+      const opts = stages.map(st => `<option value="${st}" ${st === s.stage ? 'selected' : ''}>${st}</option>`).join('');
+      return `
+        <div class="ats-row">
+          <div class="avatar">${initials}</div>
+          <div class="name">${s.candidate_name || 'Unknown'}</div>
+          <select class="stage-select" data-candidate="${s.candidate_id}" data-job="${s.job_id}">${opts}</select>
+        </div>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.stage-select').forEach(sel => {
+      sel.addEventListener('change', async (e) => {
+        const candId = e.target.dataset.candidate;
+        const jobId = e.target.dataset.job;
+        await fetch(`/api/ats/${candId}/${jobId}`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ stage: e.target.value })
+        });
+      });
+    });
+  });
+}
+
+function addMessage(text, sender) {
+  const chatWindow = document.getElementById('chatWindow');
+  if (chatWindow.querySelector('.empty-state')) chatWindow.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = `msg ${sender}`;
+  div.innerHTML = `<div class="bubble">${text}</div>`;
+  chatWindow.appendChild(div);
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+async function startSimulation() {
+  const candSelect = document.getElementById('candidateSelect');
+  simCandidateId = candSelect.value;
+  if (!simCandidateId || !currentJobId) {
+    alert('Please select both a job and a candidate first.');
+    return;
+  }
+  const candName = candSelect.options[candSelect.selectedIndex].text;
+  document.getElementById('simCandidateLabel').textContent = `Candidate: ${candName}`;
+  document.getElementById('simBadge').textContent = 'Active Session';
+
+  document.getElementById('chatWindow').innerHTML = '';
+  simIndex = 0;
+
+  if (simQuestions.length === 0) {
+    await loadQuestions();
+  }
+
+  addMessage(`Hello ${candName.split(' ')[0]}, I'm your AI interviewer today. Let's get started.`, 'ai');
+  askNextQuestion();
+
+  document.getElementById('chatInput').disabled = false;
+  document.getElementById('sendBtn').disabled = false;
+
+  // Mark this candidate as "Interview In Progress" in the ATS tracker
+  await fetch(`/api/ats/${simCandidateId}/${currentJobId}`, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ stage: 'Interview In Progress' })
+  });
+  renderAtsList();
+}
+
+function askNextQuestion() {
+  if (simIndex >= simQuestions.length) {
+    addMessage("That's all the questions I have for now. Thanks for your time today!", 'ai');
+    document.getElementById('simBadge').textContent = 'Completed';
+    document.getElementById('chatInput').disabled = true;
+    document.getElementById('sendBtn').disabled = true;
+    return;
+  }
+  addMessage(simQuestions[simIndex].question, 'ai');
+}
+
+function sendResponse() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  addMessage(text, 'user');
+  input.value = '';
+  simIndex++;
+  setTimeout(() => askNextQuestion(), 400);
+}
+
+document.getElementById('jobSelect').addEventListener('change', (e) => {
+  currentJobId = e.target.value;
+  if (currentJobId) loadQuestions();
+});
+document.getElementById('categorySelect').addEventListener('change', loadQuestions);
+document.getElementById('startSimBtn').addEventListener('click', startSimulation);
+document.getElementById('sendBtn').addEventListener('click', sendResponse);
+document.getElementById('chatInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendResponse();
+});
+
+loadJobs();
+loadCandidates();
+</script>
+
+</body>
+</html>
