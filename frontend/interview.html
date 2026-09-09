@@ -13,179 +13,98 @@
     --muted: #6b7280;
     --green: #16a34a;
     --amber: #d97706;
+    --red: #dc2626;
     --sidebar-w: 220px;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-  }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
   .shell { display: flex; min-height: 100vh; }
-  .sidebar {
-    width: var(--sidebar-w);
-    flex-shrink: 0;
-    background: var(--card);
-    border-right: 1px solid var(--border);
-    padding: 20px 12px;
-  }
-  .sidebar .brand {
-    display: flex; align-items: center; gap: 10px;
-    padding: 0 8px 20px; margin-bottom: 12px;
-    border-bottom: 1px solid var(--border);
-  }
-  .sidebar .brand .logo {
-    background: var(--primary); color: white;
-    width: 32px; height: 32px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: bold; font-size: 13px; flex-shrink: 0;
-  }
+  .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--card); border-right: 1px solid var(--border); padding: 20px 12px; }
+  .sidebar .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 20px; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .sidebar .brand .logo { background: var(--primary); color: white; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; flex-shrink: 0; }
   .sidebar .brand span { font-weight: 700; font-size: 14px; line-height: 1.2; }
-  .sidebar nav a {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 10px; border-radius: 8px;
-    color: var(--muted); text-decoration: none;
-    font-size: 13px; font-weight: 500; margin-bottom: 2px;
-  }
+  .sidebar nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 2px; }
   .sidebar nav a:hover { background: #f3f4f6; color: var(--text); }
   .sidebar nav a.active { background: #eef2ff; color: var(--primary); font-weight: 600; }
   .sidebar nav a .dot { width: 16px; text-align: center; }
   .main-area { flex: 1; min-width: 0; }
-  .topbar {
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    padding: 18px 28px;
-    display: flex; align-items: flex-start; justify-content: space-between;
-  }
+  .topbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 18px 28px; display: flex; align-items: flex-start; justify-content: space-between; }
   .topbar h1 { margin: 0 0 4px; font-size: 20px; }
   .topbar .subtitle { color: var(--muted); font-size: 13px; margin: 0; }
-  .badge {
-    background: #fef3c7; color: #b45309;
-    padding: 5px 12px; border-radius: 12px;
-    font-size: 12px; font-weight: 700; white-space: nowrap;
-  }
-  main {
-    padding: 24px 28px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    align-items: start;
-  }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-  }
+  .badge { background: #fef3c7; color: #b45309; padding: 5px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  main { padding: 24px 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
   .card h3 { margin: 0 0 2px; font-size: 15px; }
   .card .card-sub { color: var(--muted); font-size: 12.5px; margin: 0 0 16px; }
   .controls-row { display: flex; gap: 10px; margin-bottom: 16px; }
-  select {
-    flex: 1; padding: 9px 10px; border-radius: 8px;
-    border: 1px solid var(--border); font-size: 13px;
-    background: white; color: var(--text);
-  }
-  .btn {
-    background: var(--primary); color: white; border: none;
-    padding: 9px 14px; border-radius: 8px; font-weight: 600;
-    font-size: 13px; cursor: pointer; white-space: nowrap;
-  }
+  select { flex: 1; padding: 9px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; background: white; color: var(--text); }
+  .btn { background: var(--primary); color: white; border: none; padding: 9px 14px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; white-space: nowrap; }
   .btn:hover { background: #4338ca; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-block { display: block; width: 100%; }
 
-  /* Question list */
-  .q-item {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    display: flex;
-    gap: 10px;
-  }
-  .q-num {
-    flex-shrink: 0;
-    width: 24px; height: 24px;
-    background: var(--primary); color: white;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700;
-  }
+  .q-item { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; display: flex; gap: 10px; }
+  .q-num { flex-shrink: 0; width: 24px; height: 24px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
   .q-item .q-text { font-size: 13.5px; margin-bottom: 6px; line-height: 1.4; }
   .q-item .q-meta { font-size: 11px; color: var(--muted); }
   .q-item .q-meta .cat { color: var(--primary); font-weight: 600; }
+  .q-item .q-meta .growth { color: var(--amber); font-weight: 600; }
+  .q-item .q-meta .match { color: var(--green); font-weight: 600; }
 
-  /* Simulation chat */
-  .sim-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 14px;
-  }
-  .sim-header .sub { font-size: 12.5px; color: var(--muted); }
-  .live-badge {
-    background: #dcfce7; color: var(--green);
-    padding: 3px 10px; border-radius: 10px;
-    font-size: 11px; font-weight: 700;
-  }
-  .chat-window {
-    height: 320px;
-    overflow-y: auto;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    margin-bottom: 12px;
-    background: #fafafa;
-  }
-  .msg { display: flex; margin-bottom: 12px; }
-  .msg.ai { justify-content: flex-start; }
-  .msg.user { justify-content: flex-end; }
-  .msg .bubble {
-    max-width: 78%;
-    padding: 10px 13px;
-    border-radius: 12px;
-    font-size: 13px;
-    line-height: 1.45;
-  }
-  .msg.ai .bubble { background: white; border: 1px solid var(--border); border-bottom-left-radius: 3px; }
-  .msg.user .bubble { background: var(--primary); color: white; border-bottom-right-radius: 3px; }
-  .chat-input-row { display: flex; gap: 8px; margin-bottom: 20px; }
-  .chat-input-row input {
-    flex: 1; padding: 10px 12px;
-    border: 1px solid var(--border); border-radius: 8px;
-    font-size: 13px;
-  }
+  /* Simulation panel */
+  .sim-meta-row { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin: 4px 0 14px; }
+  .sim-meta-row b { color: var(--text); }
+  .progress-row { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .progress-track { height: 6px; background: #eef0f4; border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+  .progress-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.3s; }
+  .timer { font-weight: 700; color: var(--primary); }
+
+  .ai-bubble { background: #f5f5ff; border: 1px solid #e0e0ff; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+  .ai-bubble .lbl { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 6px; }
+  .ai-bubble .txt { font-size: 14px; line-height: 1.5; }
+
+  textarea#answerInput { width: 100%; min-height: 90px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; resize: vertical; }
+  .answer-label { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 6px; }
+  .submit-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+
+  .eval-card { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 16px; margin-top: 16px; }
+  .eval-card .lbl { font-size: 11px; font-weight: 700; color: var(--green); text-transform: uppercase; margin-bottom: 10px; }
+  .eval-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .eval-row b { font-weight: 700; }
+  .eval-row.overall { border-top: 1px solid #bbf7d0; margin-top: 8px; padding-top: 8px; font-size: 14px; }
+  .followup-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 10px 12px; margin-top: 12px; font-size: 12.5px; color: #9a3412; }
+
+  .empty-state { color: var(--muted); font-size: 13px; text-align: center; padding: 30px 10px; }
+
+  /* Final report */
+  .report-score { text-align: center; padding: 10px 0 18px; }
+  .report-score .num { font-size: 42px; font-weight: 800; color: var(--primary); }
+  .report-score .lbl { font-size: 12px; color: var(--muted); }
+  .rec-badge { display: inline-block; padding: 6px 16px; border-radius: 14px; font-size: 13px; font-weight: 700; margin-top: 6px; }
+  .rec-strong { background: #dcfce7; color: var(--green); }
+  .rec-recommend { background: #dbeafe; color: #1d4ed8; }
+  .rec-consider { background: #fef3c7; color: var(--amber); }
+  .rec-not { background: #fee2e2; color: var(--red); }
+  .report-summary { font-size: 13px; color: var(--text); line-height: 1.5; background: #f9fafb; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; }
+  .coverage-row { margin-bottom: 10px; }
+  .coverage-row .head { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px; }
+  .coverage-bar-track { height: 6px; background: #f1f1f4; border-radius: 4px; overflow: hidden; }
+  .coverage-bar-fill { height: 100%; border-radius: 4px; }
 
   /* ATS section */
   .ats-section h4 { font-size: 13px; margin: 0 0 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.02em; }
-  .ats-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
+  .ats-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .ats-row:last-child { border-bottom: none; }
-  .avatar {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: var(--primary); color: white;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700; flex-shrink: 0;
-  }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
   .ats-row .name { font-size: 13px; font-weight: 600; }
-  .ats-row .stage-select {
-    margin-left: auto;
-    font-size: 11.5px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-  }
-  .empty-state { color: var(--muted); font-size: 13px; text-align: center; padding: 24px 10px; }
+  .ats-row .stage-select { margin-left: auto; font-size: 11.5px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border); }
 </style>
 </head>
 <body>
 
 <div class="shell">
   <aside class="sidebar">
-    <div class="brand">
-      <div class="logo">RC</div>
-      <span>Recruitment<br/>Copilot</span>
-    </div>
+    <div class="brand"><div class="logo">RC</div><span>Recruitment<br/>Copilot</span></div>
     <nav>
       <a href="/"><span class="dot">📋</span> Dashboard</a>
       <a href="/"><span class="dot">📤</span> Resume Upload</a>
@@ -207,9 +126,12 @@
     <main>
       <div class="card">
         <h3>Interview Question Generator</h3>
-        <p class="card-sub">Role-specific questions generated from the job's required skills</p>
+        <p class="card-sub">Resume-aware and JD-aware questions from the job's required skills</p>
         <div class="controls-row">
           <select id="jobSelect"><option value="">Loading jobs...</option></select>
+          <select id="candidateSelectGen"><option value="">Any candidate</option></select>
+        </div>
+        <div class="controls-row">
           <select id="categorySelect">
             <option value="">All Categories</option>
             <option value="Technical Skills">Technical Skills</option>
@@ -223,23 +145,19 @@
 
       <div>
         <div class="card" style="margin-bottom:20px;">
-          <div class="sim-header">
-            <div>
-              <h3>AI Interview Simulation</h3>
-              <div class="sub" id="simCandidateLabel">Candidate: —</div>
-            </div>
-            <span class="live-badge" id="simBadge">Not Started</span>
+          <h3>AI Interview Simulation</h3>
+          <div class="sim-meta-row">
+            <span>Candidate: <b id="simCandidateName">—</b></span>
+            <span>Role: <b id="simRole">—</b></span>
+            <span>Difficulty: <b id="simDifficulty">—</b></span>
           </div>
           <div class="controls-row">
             <select id="candidateSelect"><option value="">Select candidate...</option></select>
             <button class="btn" id="startSimBtn">Start</button>
           </div>
-          <div class="chat-window" id="chatWindow">
-            <div class="empty-state">Select a candidate and click Start to begin the simulated interview.</div>
-          </div>
-          <div class="chat-input-row">
-            <input type="text" id="chatInput" placeholder="Type your response..." disabled />
-            <button class="btn" id="sendBtn" disabled>Send</button>
+
+          <div id="simBody">
+            <div class="empty-state">Select a job and candidate, then click Start to begin the simulated interview.</div>
           </div>
         </div>
 
@@ -258,100 +176,104 @@
 let jobs = [];
 let candidates = [];
 let currentJobId = null;
+let currentJobTitle = '';
+
 let simQuestions = [];
 let simIndex = 0;
+let simResults = [];   // {skill, overall_score}
 let simCandidateId = null;
+let simCandidateName = '';
+let timerSeconds = 0;
+let timerInterval = null;
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60).toString().padStart(2, '0');
+  const sec = (s % 60).toString().padStart(2, '0');
+  return `${m}:${sec}`;
+}
 
 async function loadJobs() {
   const res = await fetch('/api/jobs/');
   jobs = await res.json();
   const select = document.getElementById('jobSelect');
   select.innerHTML = '';
-  if (jobs.length === 0) {
-    select.innerHTML = '<option value="">No jobs yet</option>';
-    return;
-  }
+  if (jobs.length === 0) { select.innerHTML = '<option value="">No jobs yet</option>'; return; }
   jobs.forEach(j => {
     const opt = document.createElement('option');
-    opt.value = j.id;
-    opt.textContent = j.title;
+    opt.value = j.id; opt.textContent = j.title;
     select.appendChild(opt);
   });
   currentJobId = jobs[0].id;
+  currentJobTitle = jobs[0].title;
   select.value = currentJobId;
+  document.getElementById('simRole').textContent = currentJobTitle;
   await loadQuestions();
 }
 
 async function loadCandidates() {
   const res = await fetch('/api/candidates/');
   candidates = await res.json();
-  const select = document.getElementById('candidateSelect');
-  select.innerHTML = '<option value="">Select candidate...</option>';
-  candidates.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = c.name || `Candidate #${c.id}`;
-    select.appendChild(opt);
+  ['candidateSelect', 'candidateSelectGen'].forEach(id => {
+    const select = document.getElementById(id);
+    const placeholder = id === 'candidateSelect' ? 'Select candidate...' : 'Any candidate';
+    select.innerHTML = `<option value="">${placeholder}</option>`;
+    candidates.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id; opt.textContent = c.name || `Candidate #${c.id}`;
+      select.appendChild(opt);
+    });
   });
   renderAtsList();
 }
 
 async function loadQuestions() {
   const category = document.getElementById('categorySelect').value;
+  const genCandidateId = document.getElementById('candidateSelectGen').value;
   const listEl = document.getElementById('questionList');
   listEl.innerHTML = '<div class="empty-state">Generating questions...</div>';
-  const url = category
-    ? `/api/interview/questions/${currentJobId}?category=${encodeURIComponent(category)}`
-    : `/api/interview/questions/${currentJobId}`;
+
+  let url = `/api/interview/questions/${currentJobId}?`;
+  if (category) url += `category=${encodeURIComponent(category)}&`;
+  if (genCandidateId) url += `candidate_id=${genCandidateId}`;
+
   const res = await fetch(url);
-  if (!res.ok) {
-    listEl.innerHTML = '<div class="empty-state">Could not load questions for this job.</div>';
-    return;
-  }
+  if (!res.ok) { listEl.innerHTML = '<div class="empty-state">Could not load questions for this job.</div>'; return; }
   const data = await res.json();
-  simQuestions = data.questions;
-  if (data.questions.length === 0) {
-    listEl.innerHTML = '<div class="empty-state">No questions generated.</div>';
-    return;
-  }
-  listEl.innerHTML = data.questions.map((q, i) => `
-    <div class="q-item">
-      <div class="q-num">${i + 1}</div>
-      <div>
-        <div class="q-text">${q.question}</div>
-        <div class="q-meta"><span class="cat">${q.category}</span> • ${q.suggested_response_time}</div>
+  document.getElementById('simDifficulty').textContent = data.difficulty;
+
+  if (data.questions.length === 0) { listEl.innerHTML = '<div class="empty-state">No questions generated.</div>'; return; }
+
+  listEl.innerHTML = data.questions.map((q, i) => {
+    let tag = `<span class="cat">${q.category}</span>`;
+    if (q.resume_match === true) tag += ' • <span class="match">On resume</span>';
+    if (q.resume_match === false) tag += ' • <span class="growth">Growth area</span>';
+    return `
+      <div class="q-item">
+        <div class="q-num">${i + 1}</div>
+        <div>
+          <div class="q-text">${q.question}</div>
+          <div class="q-meta">${tag} • ${q.suggested_response_time}</div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 function renderAtsList() {
   fetch('/api/ats/').then(r => r.json()).then(statuses => {
     const listEl = document.getElementById('atsList');
-    if (statuses.length === 0) {
-      listEl.innerHTML = '<div class="empty-state">No candidates tracked yet. Start a simulation to add one.</div>';
-      return;
-    }
+    if (statuses.length === 0) { listEl.innerHTML = '<div class="empty-state">No candidates tracked yet. Start a simulation to add one.</div>'; return; }
     const stages = ["Applied", "Screening", "Interview In Progress", "Interview Scheduled", "Offer", "Rejected"];
     listEl.innerHTML = statuses.map(s => {
       const initials = (s.candidate_name || '?').split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
       const opts = stages.map(st => `<option value="${st}" ${st === s.stage ? 'selected' : ''}>${st}</option>`).join('');
-      return `
-        <div class="ats-row">
-          <div class="avatar">${initials}</div>
-          <div class="name">${s.candidate_name || 'Unknown'}</div>
-          <select class="stage-select" data-candidate="${s.candidate_id}" data-job="${s.job_id}">${opts}</select>
-        </div>
-      `;
+      return `<div class="ats-row"><div class="avatar">${initials}</div><div class="name">${s.candidate_name || 'Unknown'}</div>
+        <select class="stage-select" data-candidate="${s.candidate_id}" data-job="${s.job_id}">${opts}</select></div>`;
     }).join('');
-
     document.querySelectorAll('.stage-select').forEach(sel => {
       sel.addEventListener('change', async (e) => {
-        const candId = e.target.dataset.candidate;
-        const jobId = e.target.dataset.job;
-        await fetch(`/api/ats/${candId}/${jobId}`, {
-          method: 'PUT',
-          headers: {'Content-Type': 'application/json'},
+        await fetch(`/api/ats/${e.target.dataset.candidate}/${e.target.dataset.job}`, {
+          method: 'PUT', headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ stage: e.target.value })
         });
       });
@@ -359,80 +281,152 @@ function renderAtsList() {
   });
 }
 
-function addMessage(text, sender) {
-  const chatWindow = document.getElementById('chatWindow');
-  if (chatWindow.querySelector('.empty-state')) chatWindow.innerHTML = '';
-  const div = document.createElement('div');
-  div.className = `msg ${sender}`;
-  div.innerHTML = `<div class="bubble">${text}</div>`;
-  chatWindow.appendChild(div);
-  chatWindow.scrollTop = chatWindow.scrollHeight;
+function startTimer() {
+  clearInterval(timerInterval);
+  timerSeconds = 0;
+  timerInterval = setInterval(() => {
+    timerSeconds++;
+    const el = document.getElementById('timerDisplay');
+    if (el) el.textContent = fmtTime(timerSeconds);
+  }, 1000);
 }
 
 async function startSimulation() {
   const candSelect = document.getElementById('candidateSelect');
   simCandidateId = candSelect.value;
-  if (!simCandidateId || !currentJobId) {
-    alert('Please select both a job and a candidate first.');
-    return;
-  }
-  const candName = candSelect.options[candSelect.selectedIndex].text;
-  document.getElementById('simCandidateLabel').textContent = `Candidate: ${candName}`;
-  document.getElementById('simBadge').textContent = 'Active Session';
+  if (!simCandidateId || !currentJobId) { alert('Please select both a job and a candidate first.'); return; }
+  simCandidateName = candSelect.options[candSelect.selectedIndex].text;
+  document.getElementById('simCandidateName').textContent = simCandidateName;
 
-  document.getElementById('chatWindow').innerHTML = '';
+  const res = await fetch(`/api/interview/questions/${currentJobId}?candidate_id=${simCandidateId}`);
+  const data = await res.json();
+  simQuestions = data.questions;
+  document.getElementById('simDifficulty').textContent = data.difficulty;
   simIndex = 0;
+  simResults = [];
 
-  if (simQuestions.length === 0) {
-    await loadQuestions();
-  }
+  renderQuestionStep();
 
-  addMessage(`Hello ${candName.split(' ')[0]}, I'm your AI interviewer today. Let's get started.`, 'ai');
-  askNextQuestion();
-
-  document.getElementById('chatInput').disabled = false;
-  document.getElementById('sendBtn').disabled = false;
-
-  // Mark this candidate as "Interview In Progress" in the ATS tracker
   await fetch(`/api/ats/${simCandidateId}/${currentJobId}`, {
-    method: 'PUT',
-    headers: {'Content-Type': 'application/json'},
+    method: 'PUT', headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ stage: 'Interview In Progress' })
   });
   renderAtsList();
 }
 
-function askNextQuestion() {
+function renderQuestionStep() {
+  const body = document.getElementById('simBody');
   if (simIndex >= simQuestions.length) {
-    addMessage("That's all the questions I have for now. Thanks for your time today!", 'ai');
-    document.getElementById('simBadge').textContent = 'Completed';
-    document.getElementById('chatInput').disabled = true;
-    document.getElementById('sendBtn').disabled = true;
+    renderFinalReport();
     return;
   }
-  addMessage(simQuestions[simIndex].question, 'ai');
+  const q = simQuestions[simIndex];
+  startTimer();
+  body.innerHTML = `
+    <div class="progress-row">
+      <span>Question ${simIndex + 1} of ${simQuestions.length}</span>
+      <span class="timer" id="timerDisplay">00:00</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" style="width:${((simIndex) / simQuestions.length) * 100}%"></div></div>
+    <div class="ai-bubble">
+      <div class="lbl">AI Interviewer</div>
+      <div class="txt">${q.question}</div>
+    </div>
+    <div class="answer-label">Your Answer</div>
+    <textarea id="answerInput" placeholder="Type your response..."></textarea>
+    <div class="submit-row"><button class="btn" id="submitAnswerBtn">Submit Answer</button></div>
+    <div id="evalArea"></div>
+  `;
+  document.getElementById('submitAnswerBtn').addEventListener('click', submitAnswer);
 }
 
-function sendResponse() {
-  const input = document.getElementById('chatInput');
+async function submitAnswer() {
+  const input = document.getElementById('answerInput');
   const text = input.value.trim();
-  if (!text) return;
-  addMessage(text, 'user');
-  input.value = '';
-  simIndex++;
-  setTimeout(() => askNextQuestion(), 400);
+  if (!text) { alert('Please type an answer first.'); return; }
+  clearInterval(timerInterval);
+
+  const q = simQuestions[simIndex];
+  const btn = document.getElementById('submitAnswerBtn');
+  btn.disabled = true;
+  btn.textContent = 'Evaluating...';
+
+  const res = await fetch('/api/interview/evaluate', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ question: q.question, skill: q.skill, answer_text: text })
+  });
+  const evalData = await res.json();
+  simResults.push({ skill: q.skill, overall_score: evalData.overall_score });
+
+  const evalArea = document.getElementById('evalArea');
+  evalArea.innerHTML = `
+    <div class="eval-card">
+      <div class="lbl">AI Evaluation</div>
+      <div class="eval-row"><span>Relevance</span><b>${evalData.relevance}/10</b></div>
+      <div class="eval-row"><span>Technical Accuracy</span><b>${evalData.technical_accuracy}/10</b></div>
+      <div class="eval-row"><span>Completeness</span><b>${evalData.completeness}/10</b></div>
+      <div class="eval-row overall"><span>Overall Score</span><b>${evalData.overall_score}/10</b></div>
+      ${evalData.follow_up_question ? `<div class="followup-box">💬 Follow-up: "${evalData.follow_up_question}"</div>` : ''}
+    </div>
+    <div class="submit-row" style="margin-top:14px;">
+      <button class="btn" id="nextQBtn">${simIndex + 1 >= simQuestions.length ? 'View Final Report' : 'Next Question'}</button>
+    </div>
+  `;
+  document.getElementById('nextQBtn').addEventListener('click', () => {
+    simIndex++;
+    renderQuestionStep();
+  });
+}
+
+async function renderFinalReport() {
+  const body = document.getElementById('simBody');
+  body.innerHTML = '<div class="empty-state">Generating final report...</div>';
+
+  const res = await fetch('/api/interview/report', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ candidate_name: simCandidateName, job_title: currentJobTitle, results: simResults })
+  });
+  const report = await res.json();
+
+  const recClass = {
+    'Strongly Recommend': 'rec-strong', 'Recommend': 'rec-recommend',
+    'Consider with Reservations': 'rec-consider', 'Not Recommended': 'rec-not'
+  }[report.recommendation] || 'rec-consider';
+
+  const barColor = (status) => status === 'Strong' ? 'var(--green)' : status === 'Adequate' ? 'var(--amber)' : 'var(--red)';
+
+  body.innerHTML = `
+    <div class="report-score">
+      <div class="num">${report.overall_score}<span style="font-size:18px;color:var(--muted);">/10</span></div>
+      <div class="lbl">Overall Interview Score</div>
+      <div class="rec-badge ${recClass}">${report.recommendation}</div>
+    </div>
+    <div class="report-summary">${report.summary}</div>
+    <div class="answer-label">Skill Coverage</div>
+    ${report.skill_coverage.map(c => `
+      <div class="coverage-row">
+        <div class="head"><span>${c.skill}</span><span>${c.average_score}/10 · ${c.status}</span></div>
+        <div class="coverage-bar-track"><div class="coverage-bar-fill" style="width:${c.average_score * 10}%; background:${barColor(c.status)};"></div></div>
+      </div>
+    `).join('')}
+    <div class="submit-row" style="margin-top:16px;">
+      <button class="btn" id="restartBtn">Start New Interview</button>
+    </div>
+  `;
+  document.getElementById('restartBtn').addEventListener('click', () => {
+    document.getElementById('simBody').innerHTML = '<div class="empty-state">Select a job and candidate, then click Start to begin the simulated interview.</div>';
+  });
 }
 
 document.getElementById('jobSelect').addEventListener('change', (e) => {
   currentJobId = e.target.value;
+  currentJobTitle = e.target.options[e.target.selectedIndex].text;
+  document.getElementById('simRole').textContent = currentJobTitle;
   if (currentJobId) loadQuestions();
 });
 document.getElementById('categorySelect').addEventListener('change', loadQuestions);
+document.getElementById('candidateSelectGen').addEventListener('change', loadQuestions);
 document.getElementById('startSimBtn').addEventListener('click', startSimulation);
-document.getElementById('sendBtn').addEventListener('click', sendResponse);
-document.getElementById('chatInput').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') sendResponse();
-});
 
 loadJobs();
 loadCandidates();

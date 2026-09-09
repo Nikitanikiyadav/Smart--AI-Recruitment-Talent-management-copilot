@@ -1,8 +1,9 @@
 """
 services/interview_gen.py
 Generates role-specific interview questions from a job posting's required
-skills, using templated question banks per category. This is a rule-based
-generator (not a live LLM call), so it works offline with no API costs.
+skills, tailored to the candidate's resume (resume-aware) and the job
+description (JD-aware). Rule-based / templated generator - no external
+LLM API call, so it works offline with no API costs.
 """
 
 import random
@@ -13,6 +14,11 @@ TECHNICAL_TEMPLATES = [
     ("Describe a project where you used {skill}. What challenges did you face and how did you solve them?", "3-5 min response"),
     ("How would you explain {skill} to someone with little technical background?", "2-3 min response"),
     ("What best practices do you follow when working with {skill}?", "3-4 min response"),
+]
+
+TECHNICAL_TEMPLATES_ADVANCED = [
+    ("You've listed {skill} on your resume - walk me through the most complex thing you've built with it.", "4-6 min response"),
+    ("What's a mistake you made early on with {skill} that changed how you use it today?", "3-5 min response"),
 ]
 
 SCENARIO_TEMPLATES = [
@@ -28,6 +34,11 @@ BEHAVIORAL_TEMPLATES = [
 EXPERIENCE_TEMPLATES = [
     ("Walk me through your experience working with {skill} across different projects.", "4-5 min response"),
     ("What's the most challenging {skill} problem you've solved, and what was your approach?", "3-5 min response"),
+]
+
+GROWTH_AREA_TEMPLATES = [
+    ("This role requires {skill}, which isn't listed on your resume. What's your familiarity with it, if any?", "2-3 min response"),
+    ("How would you go about ramping up on {skill} if you started this role tomorrow?", "2-3 min response"),
 ]
 
 CATEGORY_MAP = {
@@ -49,21 +60,36 @@ def _parse_skills(skills_str: str) -> List[str]:
     return [s.strip() for s in skills_str.split(",") if s.strip()]
 
 
+def get_difficulty(min_experience_years: int) -> str:
+    if not min_experience_years or min_experience_years < 2:
+        return "Beginner"
+    if min_experience_years < 5:
+        return "Intermediate"
+    return "Advanced"
+
+
+def _jd_snippet(description: Optional[str]) -> Optional[str]:
+    if not description:
+        return None
+    sentences = [s.strip() for s in description.replace("\n", " ").split(".") if s.strip()]
+    if not sentences:
+        return None
+    return sentences[0][:140]
+
+
 def generate_questions(
     job_title: str,
     required_skills: str,
+    description: Optional[str] = None,
+    candidate_skills: Optional[str] = None,
     category_filter: Optional[str] = None,
     max_questions: int = 6,
 ) -> List[InterviewQuestion]:
-    """
-    Build a list of interview questions for a job posting.
-    If category_filter is given (e.g. "Technical Skills"), only that category
-    of question is generated (one per required skill, up to max_questions).
-    Otherwise, a mixed set across all categories is returned.
-    """
     skills = _parse_skills(required_skills)
     if not skills:
-        skills = [job_title]  # fallback so we still produce something
+        skills = [job_title]
+
+    candidate_skill_set = {s.strip().lower() for s in _parse_skills(candidate_skills or "")}
 
     questions: List[InterviewQuestion] = []
 
@@ -72,31 +98,57 @@ def generate_questions(
         for skill in skills:
             if len(questions) >= max_questions:
                 break
-            template, resp_time = random.choice(templates)
+            has_skill = skill.lower() in candidate_skill_set
+            if category_filter == "Technical Skills" and has_skill:
+                template, resp_time = random.choice(TECHNICAL_TEMPLATES_ADVANCED)
+            else:
+                template, resp_time = random.choice(templates)
             questions.append(InterviewQuestion(
                 question=template.format(skill=skill),
                 category=label,
                 skill=skill,
                 suggested_response_time=resp_time,
+                resume_match=has_skill,
             ))
     else:
-        # Mixed set: one opener, then rotate through categories per skill
         opener_q, opener_cat, opener_time = random.choice(GENERIC_OPENERS)
         questions.append(InterviewQuestion(
             question=opener_q, category=opener_cat, skill=None,
-            suggested_response_time=opener_time,
+            suggested_response_time=opener_time, resume_match=None,
         ))
+
         categories = list(CATEGORY_MAP.values())
         for i, skill in enumerate(skills):
             if len(questions) >= max_questions:
                 break
-            label, templates = categories[i % len(categories)]
-            template, resp_time = random.choice(templates)
+            has_skill = skill.lower() in candidate_skill_set
+
+            if candidate_skills and not has_skill and random.random() < 0.5:
+                template, resp_time = random.choice(GROWTH_AREA_TEMPLATES)
+                label = "Growth Area"
+            else:
+                label, templates = categories[i % len(categories)]
+                if label == "Technical" and has_skill:
+                    template, resp_time = random.choice(TECHNICAL_TEMPLATES_ADVANCED)
+                else:
+                    template, resp_time = random.choice(templates)
+
             questions.append(InterviewQuestion(
                 question=template.format(skill=skill),
                 category=label,
                 skill=skill,
                 suggested_response_time=resp_time,
+                resume_match=has_skill,
             ))
+
+        jd_phrase = _jd_snippet(description)
+        if jd_phrase and len(questions) >= 2:
+            questions[-1] = InterviewQuestion(
+                question=f"The role description mentions: \"{jd_phrase}\". Can you share relevant experience related to that?",
+                category="Experience-based",
+                skill=questions[-1].skill,
+                suggested_response_time="3-5 min response",
+                resume_match=questions[-1].resume_match,
+            )
 
     return questions[:max_questions]
