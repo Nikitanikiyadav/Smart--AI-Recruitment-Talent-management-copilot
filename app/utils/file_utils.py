@@ -8,8 +8,8 @@ import json
 import shutil
 from fastapi import UploadFile
 
-UPLOAD_DIR = "uploads"
-EXTRACTED_DIR = "extracted_data"
+UPLOAD_DIR = "/tmp/uploads"
+EXTRACTED_DIR = "/tmp/extracted_data"
 
 ALLOWED_EXTENSIONS = {".pdf", ".docx"}
 
