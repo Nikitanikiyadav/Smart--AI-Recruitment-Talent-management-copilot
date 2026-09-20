@@ -363,14 +363,30 @@ async function selectCandidate(candidateId, cardEl) {
   cardEl.classList.add('selected');
 
   const contentEl = document.getElementById('skillGapContent');
-  contentEl.innerHTML = '<div class="empty-state">Loading skill breakdown...</div>';
+  const jobIdAtClick = currentJobId;
+  contentEl.innerHTML = `<div class="empty-state">Loading skill breakdown for candidate ${candidateId}, job ${jobIdAtClick}...</div>`;
 
-  const res = await fetch(`/api/match/skill-gap/${candidateId}/${currentJobId}`);
-  if (!res.ok) {
-    contentEl.innerHTML = '<div class="empty-state">Could not load skill gap for this candidate.</div>';
+  let res, data;
+  try {
+    res = await fetch(`/api/match/skill-gap/${candidateId}/${jobIdAtClick}`);
+  } catch (err) {
+    contentEl.innerHTML = `<div class="empty-state" style="color:#dc2626;">Network error: ${err.message}</div>`;
     return;
   }
-  const data = await res.json();
+
+  if (!res.ok) {
+    let detail = '';
+    try { const errBody = await res.json(); detail = errBody.detail || ''; } catch (e) {}
+    contentEl.innerHTML = `<div class="empty-state" style="color:#dc2626;">Error ${res.status}: ${detail || 'Could not load skill gap for this candidate.'}</div>`;
+    return;
+  }
+
+  try {
+    data = await res.json();
+  } catch (err) {
+    contentEl.innerHTML = `<div class="empty-state" style="color:#dc2626;">Bad response from server: ${err.message}</div>`;
+    return;
+  }
 
   document.getElementById('skillGapSub').textContent = `Candidate: ${data.candidate_name || 'Unnamed'} — ${data.job_title}`;
 

@@ -79,3 +79,16 @@ class ATSStatusResponse(BaseModel):
 
 class ATSStatusUpdate(BaseModel):
     stage: str
+    
+
+
+class VoiceScreenRequest(BaseModel):
+    candidate_id: Optional[int] = None
+    job_id: int
+    transcript: str
+
+
+class VoiceScreenResponse(BaseModel):
+    assessment: str
+    recommended_next_step: str
+    skills_mentioned: List[str]

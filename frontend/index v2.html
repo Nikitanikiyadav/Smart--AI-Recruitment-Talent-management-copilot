@@ -64,40 +64,26 @@
     border-radius: 12px;
     padding: 20px;
   }
-  .card h3 { margin: 0 0 16px; font-size: 15px; font-weight: 600; }
   .drop-zone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
     border: 2px dashed var(--border);
     border-radius: 10px;
-    padding: 36px 20px;
+    padding: 30px;
     text-align: center;
     color: var(--muted);
     cursor: pointer;
     transition: 0.15s;
-    font-size: 14px;
-    line-height: 1.6;
   }
-  .drop-zone .upload-icon { font-size: 28px; margin-bottom: 8px; }
-  .drop-zone small { color: #9ca3af; font-size: 12px; }
   .drop-zone:hover { border-color: var(--primary); background: #f8f8ff; }
   .btn {
-    display: block;
-    width: 100%;
     background: var(--primary);
     color: white;
     border: none;
-    padding: 12px 18px;
+    padding: 10px 18px;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 14px;
     cursor: pointer;
-    margin-top: 16px;
+    margin-top: 12px;
   }
-  .btn:hover { background: #4338ca; }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .stats { display: flex; gap: 24px; margin-top: 12px; }
   .stat .num { font-size: 22px; font-weight: 700; }
@@ -138,11 +124,12 @@
     <div class="card">
       <h3>Upload Resume</h3>
       <label class="drop-zone" for="fileInput">
-        <div class="upload-icon">⬆️</div>
-        <div>Drag and drop resumes or click to browse</div>
+        ⬆️<br/>
+        Drag and drop resumes or click to browse<br/>
         <small>Supported formats: PDF, DOCX &middot; multiple files allowed</small>
       </label>
       <input type="file" id="fileInput" accept=".pdf,.docx" multiple />
+      <br/>
       <button class="btn" id="uploadBtn">Upload File</button>
       <div id="uploadResult"></div>
     </div>
@@ -209,6 +196,7 @@ uploadBtn.addEventListener('click', async () => {
   uploadBtn.disabled = true;
 
   if (fileInput.files.length === 1) {
+    // --- Single file: keep the existing detailed profile view ---
     const file = fileInput.files[0];
     const formData = new FormData();
     formData.append('file', file);
@@ -244,6 +232,7 @@ uploadBtn.addEventListener('click', async () => {
     return;
   }
 
+  // --- Multiple files: bulk upload, show a per-file summary ---
   const formData = new FormData();
   for (const file of fileInput.files) {
     formData.append('files', file);

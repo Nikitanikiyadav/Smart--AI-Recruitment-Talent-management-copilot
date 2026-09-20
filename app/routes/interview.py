@@ -1,7 +1,8 @@
 """
 routes/interview.py
 API endpoints for generating role-specific interview questions,
-evaluating candidate answers, and producing a final interview report.
+evaluating candidate answers, producing a final interview report,
+and assessing voice-screening call transcripts.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -14,9 +15,11 @@ from app.models.candidate import Candidate
 from app.schemas.interview import (
     QuestionSetResponse, AnswerSubmit, AnswerEvaluation,
     ReportRequest, InterviewReport,
+    VoiceScreenRequest, VoiceScreenResponse,
 )
 from app.services.interview_gen import generate_questions, get_difficulty
 from app.services.interview_eval import evaluate_answer, build_report
+from app.services.voice_screen import assess_transcript
 
 router = APIRouter(prefix="/api/interview", tags=["Interview"])
 
@@ -75,3 +78,18 @@ def report(req: ReportRequest):
         job_title=req.job_title,
         results=results,
     )
+
+
+@router.post("/voice-screen", response_model=VoiceScreenResponse)
+def voice_screen(req: VoiceScreenRequest, db: Session = Depends(get_db)):
+    """Produce a preliminary assessment from a voice-screening call transcript."""
+    job = db.query(JobPosting).filter(JobPosting.id == req.job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job posting not found")
+
+    result = assess_transcript(
+        transcript=req.transcript,
+        job_title=job.title,
+        required_skills=job.required_skills,
+    )
+    return VoiceScreenResponse(**result)

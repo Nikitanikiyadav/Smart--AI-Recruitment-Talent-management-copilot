@@ -64,7 +64,17 @@
   .ai-bubble .txt { font-size: 14px; line-height: 1.5; }
 
   textarea#answerInput { width: 100%; min-height: 90px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; resize: vertical; }
-  .answer-label { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0 0 6px; }
+  .answer-label-row { display: flex; justify-content: space-between; align-items: center; margin: 0 0 6px; }
+  .answer-label { font-size: 12px; font-weight: 600; color: var(--muted); margin: 0; }
+  .mic-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: white; border: 1px solid var(--border); color: var(--text);
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .mic-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .mic-btn.recording { background: #fee2e2; border-color: var(--red); color: var(--red); animation: pulse 1.2s infinite; }
+  .mic-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
   .submit-row { display: flex; justify-content: flex-end; margin-top: 10px; }
 
   .eval-card { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 16px; margin-top: 16px; }
@@ -332,12 +342,74 @@ function renderQuestionStep() {
       <div class="lbl">AI Interviewer</div>
       <div class="txt">${q.question}</div>
     </div>
-    <div class="answer-label">Your Answer</div>
-    <textarea id="answerInput" placeholder="Type your response..."></textarea>
+    <div class="answer-label-row">
+      <div class="answer-label">Your Answer</div>
+      <button class="mic-btn" id="micBtn" type="button">🎤 <span id="micBtnLabel">Speak Answer</span></button>
+    </div>
+    <textarea id="answerInput" placeholder="Type your response, or click 'Speak Answer' to use voice..."></textarea>
     <div class="submit-row"><button class="btn" id="submitAnswerBtn">Submit Answer</button></div>
     <div id="evalArea"></div>
   `;
   document.getElementById('submitAnswerBtn').addEventListener('click', submitAnswer);
+  setupVoiceInput();
+}
+
+// --- Voice-based screening: uses the browser's built-in Web Speech API (free, no API key needed) ---
+let recognition = null;
+let isRecording = false;
+
+function setupVoiceInput() {
+  const micBtn = document.getElementById('micBtn');
+  const micLabel = document.getElementById('micBtnLabel');
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognitionAPI) {
+    micBtn.disabled = true;
+    micLabel.textContent = 'Voice not supported in this browser';
+    return;
+  }
+
+  micBtn.addEventListener('click', () => {
+    if (isRecording) {
+      recognition.stop();
+      return;
+    }
+    recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    const input = document.getElementById('answerInput');
+    const baseText = input.value.trim();
+
+    recognition.onstart = () => {
+      isRecording = true;
+      micBtn.classList.add('recording');
+      micLabel.textContent = 'Listening... click to stop';
+    };
+
+    recognition.onresult = (event) => {
+      let transcript = '';
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      input.value = (baseText ? baseText + ' ' : '') + transcript;
+    };
+
+    recognition.onerror = () => {
+      isRecording = false;
+      micBtn.classList.remove('recording');
+      micLabel.textContent = 'Speak Answer';
+    };
+
+    recognition.onend = () => {
+      isRecording = false;
+      micBtn.classList.remove('recording');
+      micLabel.textContent = 'Speak Answer';
+    };
+
+    recognition.start();
+  });
 }
 
 async function submitAnswer() {

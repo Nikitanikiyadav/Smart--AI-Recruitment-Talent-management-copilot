@@ -1,0 +1,9 @@
+{
+  "name": "Jacob Mitchell",
+  "email": "jacob.mitchell@example.com",
+  "phone": "(312) 555-0198",
+  "location": "Chicago",
+  "education": "Bachelor's Degree in Computer Science 2023",
+  "experience_years": null,
+  "skills": "AWS, Agile, C++, Django, Docker, Excel, Flask, Git, Java, Kubernetes, MongoDB, MySQL, PostgreSQL, Python, SQL, Scrum"
+}

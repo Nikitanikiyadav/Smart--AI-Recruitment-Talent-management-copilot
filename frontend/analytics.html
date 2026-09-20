@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Recruitment Copilot - Dashboard & Deployment</title>
+<style>
+  :root {
+    --primary: #4f46e5; --bg: #f5f6fa; --card: #ffffff; --border: #e5e7eb;
+    --text: #1f2937; --muted: #6b7280; --green: #16a34a; --amber: #d97706;
+    --red: #dc2626; --sidebar-w: 220px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  .shell { display: flex; min-height: 100vh; }
+  .sidebar { width: var(--sidebar-w); flex-shrink: 0; background: var(--card); border-right: 1px solid var(--border); padding: 20px 12px; }
+  .sidebar .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 20px; margin-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .sidebar .brand .logo { background: var(--primary); color: white; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; flex-shrink: 0; }
+  .sidebar .brand span { font-weight: 700; font-size: 14px; line-height: 1.2; }
+  .sidebar nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .sidebar nav a:hover { background: #f3f4f6; color: var(--text); }
+  .sidebar nav a.active { background: #eef2ff; color: var(--primary); font-weight: 600; }
+  .sidebar nav a .dot { width: 16px; text-align: center; }
+  .main-area { flex: 1; min-width: 0; }
+  .topbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 18px 28px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .topbar h1 { margin: 0 0 4px; font-size: 20px; }
+  .topbar .subtitle { color: var(--muted); font-size: 13px; margin: 0; }
+  .badge { background: #ede9fe; color: #6d28d9; padding: 5px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  main { padding: 24px 28px; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .stat-card .num { font-size: 26px; font-weight: 800; }
+  .stat-card .lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .card h3 { margin: 0 0 2px; font-size: 15px; }
+  .card .card-sub { color: var(--muted); font-size: 12.5px; margin: 0 0 16px; }
+
+  .skill-bar-row { margin-bottom: 12px; }
+  .skill-bar-row .head { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 4px; }
+  .skill-bar-track { height: 8px; background: #f1f1f4; border-radius: 4px; overflow: hidden; }
+  .skill-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; }
+
+  /* Vertical funnel chart */
+  .funnel-chart { display: flex; align-items: flex-end; justify-content: space-between; height: 200px; gap: 10px; padding: 10px 4px 0; }
+  .funnel-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .funnel-bar { width: 100%; max-width: 46px; border-radius: 5px 5px 0 0; transition: height 0.4s; min-height: 3px; }
+  .funnel-val { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .funnel-lbl { font-size: 11px; color: var(--muted); margin-top: 8px; text-align: center; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; }
+  .match-badge { padding: 3px 10px; border-radius: 10px; font-weight: 700; font-size: 12px; }
+  .match-high { background: #dcfce7; color: var(--green); }
+  .match-mid { background: #fef3c7; color: var(--amber); }
+  .match-low { background: #fee2e2; color: var(--red); }
+
+  .empty-state { color: var(--muted); font-size: 13px; text-align: center; padding: 30px 10px; }
+
+  /* Voice Screening Module */
+  .vs-controls-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .vs-controls-row select { flex: 1; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 12.5px; }
+  .vs-btn-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .vs-btn { border: none; padding: 9px 14px; border-radius: 8px; font-weight: 600; font-size: 12.5px; cursor: pointer; }
+  .vs-btn-start { background: var(--primary); color: white; }
+  .vs-btn-start:disabled { opacity: 0.5; cursor: not-allowed; }
+  .vs-btn-stop { background: #f3f4f6; color: var(--text); border: 1px solid var(--border); }
+  .vs-btn-save { background: #f3f4f6; color: var(--text); border: 1px solid var(--border); }
+  .vs-status { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); margin-bottom: 10px; }
+  .vs-status .rec-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+  .vs-status .rec-dot.pulsing { animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .waveform { display: flex; align-items: center; gap: 3px; height: 36px; background: #f9fafb; border-radius: 8px; padding: 0 12px; margin-bottom: 14px; }
+  .waveform .bar { width: 3px; background: var(--primary); border-radius: 2px; height: 6px; transition: height 0.1s; }
+  .assessment-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 14px; font-size: 12.5px; line-height: 1.5; }
+  .assessment-box .lbl { font-weight: 700; color: var(--green); font-size: 11px; text-transform: uppercase; margin-bottom: 6px; }
+  .assessment-box .next-step { display: inline-block; margin-top: 8px; background: white; border: 1px solid #bbf7d0; padding: 3px 10px; border-radius: 8px; font-weight: 700; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">RC</div><span>Recruitment<br/>Copilot</span></div>
+    <nav>
+      <a href="/"><span class="dot">📋</span> Dashboard</a>
+      <a href="/"><span class="dot">📤</span> Resume Upload</a>
+      <a href="/"><span class="dot">👥</span> Candidates</a>
+      <a href="/match"><span class="dot">📊</span> Matching &amp; Skill Analysis</a>
+      <a href="/interview"><span class="dot">🎤</span> Interview Assistant</a>
+      <a class="active" href="/analytics"><span class="dot">📈</span> Analytics</a>
+    </nav>
+  </aside>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div>
+        <h1>Dashboard &amp; Deployment</h1>
+        <p class="subtitle">Recruitment analytics, voice screening, and system status</p>
+      </div>
+      <div class="badge">Milestone 4</div>
+    </div>
+
+    <main>
+      <div class="stat-grid" id="statGrid">
+        <div class="stat-card"><div class="num">—</div><div class="lbl">Total Candidates</div></div>
+        <div class="stat-card"><div class="num">—</div><div class="lbl">Total Job Postings</div></div>
+        <div class="stat-card"><div class="num">—</div><div class="lbl">In ATS Pipeline</div></div>
+        <div class="stat-card"><div class="num">—</div><div class="lbl">Avg Match Score</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>Recruitment Pipeline</h3>
+          <p class="card-sub">Candidates by hiring stage</p>
+          <div id="funnelChart"><div class="empty-state">Loading...</div></div>
+        </div>
+
+        <div class="card">
+          <h3>🎙️ Voice Screening Module</h3>
+          <p class="card-sub">Record a quick screening call and get an instant preliminary assessment</p>
+          <div class="vs-controls-row">
+            <select id="vsCandidateSelect"><option value="">Select candidate...</option></select>
+            <select id="vsJobSelect"><option value="">Select job...</option></select>
+          </div>
+          <div class="vs-btn-row">
+            <button class="vs-btn vs-btn-start" id="vsStartBtn">🔴 Start Screening</button>
+            <button class="vs-btn vs-btn-stop" id="vsStopBtn" disabled>⏹ Stop</button>
+            <button class="vs-btn vs-btn-save" id="vsSaveBtn" disabled>💾 Save Recording</button>
+          </div>
+          <div class="vs-status" id="vsStatus" style="display:none;">
+            <span class="rec-dot pulsing"></span> Recording in progress... <span id="vsTimer">00:00</span>
+          </div>
+          <div class="waveform" id="vsWaveform" style="display:none;"></div>
+          <div id="vsAssessment"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Match Score by Job</h3>
+        <p class="card-sub">Average candidate fit for each open position</p>
+        <table>
+          <thead><tr><th>Job Title</th><th>Candidates Compared</th><th>Avg Match Score</th></tr></thead>
+          <tbody id="jobTableBody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+const FUNNEL_STAGES = [
+  { key: "Applied", label: "Applied", color: "#9ca3af" },
+  { key: "Screening", label: "Screened", color: "#3b82f6" },
+  { key: "InterviewedCombined", label: "Interviewed", color: "#f59e0b" },
+  { key: "Offer", label: "Offered", color: "#8b5cf6" },
+  { key: "Hired", label: "Hired", color: "#16a34a" },
+];
+
+function matchClass(score) {
+  if (score >= 70) return 'match-high';
+  if (score >= 40) return 'match-mid';
+  return 'match-low';
+}
+
+async function loadAnalytics() {
+  const res = await fetch('/api/analytics/summary');
+  const data = await res.json();
+
+  const timeToHireDisplay = data.avg_time_to_hire_days === null || data.avg_time_to_hire_days === undefined
+    ? '—'
+    : `${data.avg_time_to_hire_days}d`;
+
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-card"><div class="num">${data.total_candidates}</div><div class="lbl">Total Candidates</div></div>
+    <div class="stat-card"><div class="num">${data.interviews_scheduled}</div><div class="lbl">Interviews Scheduled</div></div>
+    <div class="stat-card"><div class="num">${data.hiring_success_rate}%</div><div class="lbl">Hiring Success Rate</div></div>
+    <div class="stat-card"><div class="num">${timeToHireDisplay}</div><div class="lbl">Avg Time to Hire</div></div>
+  `;
+
+  const skillsCount = {};
+  data.top_skills.forEach(s => skillsCount[s.skill] = s.count);
+
+  const stageCounts = {};
+  data.ats_stage_breakdown.forEach(s => stageCounts[s.stage] = s.count);
+  const interviewedCombined = (stageCounts["Interview In Progress"] || 0) + (stageCounts["Interview Scheduled"] || 0);
+
+  const funnelValues = FUNNEL_STAGES.map(f => f.key === "InterviewedCombined" ? interviewedCombined : (stageCounts[f.key] || 0));
+  const maxVal = Math.max(1, ...funnelValues);
+
+  const funnelEl = document.getElementById('funnelChart');
+  funnelEl.innerHTML = `<div class="funnel-chart">` + FUNNEL_STAGES.map((f, i) => {
+    const val = funnelValues[i];
+    const heightPct = Math.max(4, (val / maxVal) * 100);
+    return `
+      <div class="funnel-col">
+        <div class="funnel-val">${val}</div>
+        <div class="funnel-bar" style="height:${heightPct}%; background:${f.color};"></div>
+        <div class="funnel-lbl">${f.label}</div>
+      </div>
+    `;
+  }).join('') + `</div>`;
+
+  const tbody = document.getElementById('jobTableBody');
+  if (data.job_match_summary.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No job postings yet.</td></tr>';
+  } else {
+    tbody.innerHTML = data.job_match_summary.map(j => `
+      <tr>
+        <td>${j.job_title}</td>
+        <td>${j.candidate_count}</td>
+        <td><span class="match-badge ${matchClass(j.average_match_score)}">${j.average_match_score}%</span></td>
+      </tr>
+    `).join('');
+  }
+}
+
+// --- Voice Screening Module ---
+let vsRecognition = null;
+let vsTranscript = '';
+let vsTimerSeconds = 0;
+let vsTimerInterval = null;
+let vsWaveInterval = null;
+
+async function loadVoiceScreenDropdowns() {
+  const [candRes, jobRes] = await Promise.all([fetch('/api/candidates/'), fetch('/api/jobs/')]);
+  const candidates = await candRes.json();
+  const jobs = await jobRes.json();
+
+  const candSelect = document.getElementById('vsCandidateSelect');
+  candSelect.innerHTML = '<option value="">Select candidate...</option>' +
+    candidates.map(c => `<option value="${c.id}">${c.name || 'Candidate #' + c.id}</option>`).join('');
+
+  const jobSelect = document.getElementById('vsJobSelect');
+  jobSelect.innerHTML = '<option value="">Select job...</option>' +
+    jobs.map(j => `<option value="${j.id}">${j.title}</option>`).join('');
+}
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60).toString().padStart(2, '0');
+  const sec = (s % 60).toString().padStart(2, '0');
+  return `${m}:${sec}`;
+}
+
+function buildWaveform() {
+  const wf = document.getElementById('vsWaveform');
+  wf.innerHTML = '';
+  for (let i = 0; i < 40; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    wf.appendChild(bar);
+  }
+}
+
+function animateWaveform() {
+  document.querySelectorAll('#vsWaveform .bar').forEach(bar => {
+    bar.style.height = (4 + Math.random() * 28) + 'px';
+  });
+}
+
+document.getElementById('vsStartBtn').addEventListener('click', () => {
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognitionAPI) {
+    alert('Voice recognition is not supported in this browser. Try Chrome or Edge.');
+    return;
+  }
+  vsTranscript = '';
+  document.getElementById('vsAssessment').innerHTML = '';
+  vsRecognition = new SpeechRecognitionAPI();
+  vsRecognition.lang = 'en-US';
+  vsRecognition.continuous = true;
+  vsRecognition.interimResults = true;
+
+  vsRecognition.onresult = (event) => {
+    let t = '';
+    for (let i = 0; i < event.results.length; i++) t += event.results[i][0].transcript;
+    vsTranscript = t;
+  };
+
+  vsRecognition.start();
+
+  document.getElementById('vsStartBtn').disabled = true;
+  document.getElementById('vsStopBtn').disabled = false;
+  document.getElementById('vsStatus').style.display = 'flex';
+  document.getElementById('vsWaveform').style.display = 'flex';
+  buildWaveform();
+
+  vsTimerSeconds = 0;
+  vsTimerInterval = setInterval(() => {
+    vsTimerSeconds++;
+    document.getElementById('vsTimer').textContent = fmtTime(vsTimerSeconds);
+  }, 1000);
+  vsWaveInterval = setInterval(animateWaveform, 150);
+});
+
+document.getElementById('vsStopBtn').addEventListener('click', () => {
+  if (vsRecognition) vsRecognition.stop();
+  clearInterval(vsTimerInterval);
+  clearInterval(vsWaveInterval);
+  document.getElementById('vsStartBtn').disabled = false;
+  document.getElementById('vsStopBtn').disabled = true;
+  document.getElementById('vsSaveBtn').disabled = false;
+  document.getElementById('vsStatus').style.display = 'none';
+  document.getElementById('vsWaveform').style.display = 'none';
+});
+
+document.getElementById('vsSaveBtn').addEventListener('click', async () => {
+  const jobId = document.getElementById('vsJobSelect').value;
+  const candidateId = document.getElementById('vsCandidateSelect').value;
+
+  if (!jobId) { alert('Please select a job posting first.'); return; }
+  if (!vsTranscript.trim()) { alert('No speech was captured. Try recording again.'); return; }
+
+  const assessEl = document.getElementById('vsAssessment');
+  assessEl.innerHTML = '<div class="empty-state">Analyzing transcript...</div>';
+
+  const res = await fetch('/api/interview/voice-screen', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ candidate_id: candidateId || null, job_id: jobId, transcript: vsTranscript })
+  });
+  const data = await res.json();
+
+  assessEl.innerHTML = `
+    <div class="assessment-box">
+      <div class="lbl">Preliminary Assessment</div>
+      ${data.assessment}
+      <div><span class="next-step">${data.recommended_next_step}</span></div>
+    </div>
+  `;
+  document.getElementById('vsSaveBtn').disabled = true;
+});
+
+loadAnalytics();
+loadVoiceScreenDropdowns();
+</script>
+
+</body>
+</html>

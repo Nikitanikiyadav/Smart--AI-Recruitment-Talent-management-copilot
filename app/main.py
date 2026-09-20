@@ -4,6 +4,7 @@ FastAPI entry point for the AI Recruitment & Talent Management Copilot.
 Milestone 1: Resume Parsing & Candidate Profiling.
 Milestone 2: Matching & Skill Analysis.
 Milestone 3: Interview Assistance & ATS Integration.
+Milestone 4: Analytics Dashboard, Voice Screening & Deployment.
 """
 
 from fastapi import FastAPI, Request
@@ -16,15 +17,15 @@ from app.database import engine, Base
 from app.models import candidate as _candidate_model  # noqa: F401
 from app.models import job as _job_model              # noqa: F401
 from app.models import interview as _interview_model  # noqa: F401
-from app.routes import upload, candidate, jobs, match, interview, ats
+from app.routes import upload, candidate, jobs, match, interview, ats, analytics
 
 # Create DB tables on startup (SQLite file: recruitment_copilot.db)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="AI Recruitment & Talent Management Copilot",
-    description="Milestone 1 - Resume Parsing | Milestone 2 - Matching & Skill Analysis | Milestone 3 - Interview Assistance & ATS Integration",
-    version="0.3.0",
+    description="Milestone 1-4: Resume Parsing, Matching, Interview Assistance, Analytics Dashboard",
+    version="0.4.0",
 )
 
 app.add_middleware(
@@ -41,6 +42,7 @@ app.include_router(jobs.router)
 app.include_router(match.router)
 app.include_router(interview.router)
 app.include_router(ats.router)
+app.include_router(analytics.router)
 
 # Simple server-rendered UI
 templates = Jinja2Templates(directory="frontend")
@@ -62,6 +64,11 @@ def interview_page(request: Request):
     return templates.TemplateResponse("interview.html", {"request": request})
 
 
+@app.get("/analytics")
+def analytics_page(request: Request):
+    return templates.TemplateResponse("analytics.html", {"request": request})
+
+
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "milestone": "3 - Interview Assistance & ATS Integration"}
+    return {"status": "ok", "milestone": "4 - Analytics Dashboard, Voice Screening & Deployment"}
